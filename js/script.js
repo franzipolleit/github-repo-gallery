@@ -8,6 +8,10 @@ const repoList = document.querySelector(".repo-list");
 const allReposContainer = document.querySelector(".repos");
 //section where the individual repo data will appear
 const indivRepoContainer = document.querySelector(".repo-data");
+// Back to Repo Gallery Button
+const repoGalleryButton = document.querySelector(".view-repos");
+//the input with the "Search by name" placeholder
+const filterInput = document.querySelector(".filter-repos");
 
 const gitUserInfo = async function () {
     const userInfo = await fetch (`https://api.github.com/users/${username}`);
@@ -42,6 +46,7 @@ const gitRepos = async function () {
 };
 
 const displayRepos = function (repos) {
+    filterInput.classList.remove("hide");
     for (const repo of repos) {
       const repoItem = document.createElement("li");
       repoItem.classList.add("repo");
@@ -77,6 +82,7 @@ const getRepoInfo = async function (repoName) {
 const displayRepoInfo = function (repoInfo, languages) {
     indivRepoContainer.innerHTML = "";
     indivRepoContainer.classList.remove("hide");
+    repoGalleryButton.classList.remove("hide");
     allReposContainer.classList.add("hide");
     const div = document.createElement("div");
     div.innerHTML = `
@@ -88,3 +94,23 @@ const displayRepoInfo = function (repoInfo, languages) {
     `;
     indivRepoContainer.append(div);
 };
+
+repoGalleryButton.addEventListener("click", function () {
+    allReposContainer.classList.remove("hide");
+    indivRepoContainer.classList.add("hide");
+    repoGalleryButton.classList.add("hide");
+});
+
+filterInput.addEventListener("input", function (e) {
+    const searchText = e.target.value;
+    const repos = document.querySelectorAll(".repo");
+    const searchLowerText = searchText.toLowerCase();
+    for (const repo of repos) {
+        const repoLowerText = repo.innerText.toLowerCase();
+        if (repoLowerText.includes(searchLowerText)) {
+            repo.classList.remove("hide");
+        } else {
+            repo.classList.add("hide");
+        }
+    }
+});
