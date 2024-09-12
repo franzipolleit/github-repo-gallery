@@ -4,6 +4,10 @@ const overview = document.querySelector(".overview");
 const username = "franzipolleit";
 //unordered list to display the repos list
 const repoList = document.querySelector(".repo-list");
+// the section where all the repo information apperas
+const allReposContainer = document.querySelector(".repos");
+//section where the individual repo data will appear
+const indivRepoContainer = document.querySelector(".repo-data");
 
 const gitUserInfo = async function () {
     const userInfo = await fetch (`https://api.github.com/users/${username}`);
@@ -45,3 +49,42 @@ const displayRepos = function (repos) {
       repoList.append(repoItem);
     }
   };
+
+repoList.addEventListener("click", function (e) {
+    if (e.target.matches("h3")) {
+        const repoName = e.target.innerText;
+        getRepoInfo(repoName);
+    }
+});
+
+const getRepoInfo = async function (repoName) {
+    const fetchInfo = await fetch (`https://api.github.com/repos/${username}/${repoName}`);
+    const repoInfo = await fetchInfo.json();
+
+    // Grab languages
+    const fetchLanguages = await fetch(repoInfo.languages_url);
+    const languageData = await fetchLanguages.json();
+
+    // Make a list of languages
+    const languages = [];
+    for (const language in languageData) {
+        languages.push(language);
+    }
+
+    displayRepoInfo(repoInfo, languages);
+};
+
+const displayRepoInfo = function (repoInfo, languages) {
+    indivRepoContainer.innerHTML = "";
+    indivRepoContainer.classList.remove("hide");
+    allReposContainer.classList.add("hide");
+    const div = document.createElement("div");
+    div.innerHTML = `
+    <h3>Name: ${repoInfo.name}</h3>
+    <p>Description: ${repoInfo.description}</p>
+    <p>Default Branch: ${repoInfo.default_branch}</p>
+    <p>Languages: ${languages.join(", ")}</p>
+    <a class="visit" href="${repoInfo.html_url}" target="_blank" rel="noreferrer noopener">View Repo on GitHub!</a>
+    `;
+    indivRepoContainer.append(div);
+};
